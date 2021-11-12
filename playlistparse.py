@@ -3,17 +3,19 @@
 #define
 default_playlist = 'default_playlist.json'
 default_beatmap = 'C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels'
+default_ranked_playlist = 'ranked_all'
 
 import argparse
 parser = argparse.ArgumentParser(description="This is playlist parser for extrating ranked maps.")
 
 parser.add_argument('--input_beatmap_path', help='input beatmap folder path', default=default_beatmap)
-parser.add_argument('input_ranked_path', help='input current ranked playlist path')
+parser.add_argument('--input_ranked_path', help='input current ranked playlist path')
 parser.add_argument('output_path', help='output extracted playlist path')
 args = parser.parse_args()
 
 import json
 import jsbeautifier
+import hashlib
 import os
 
 class playlistHelper():
@@ -35,7 +37,11 @@ class playlistEditor():
         self.helper = playlistHelper()
         self.default_playlist = default_playlist
         self.beatmap_hash_list = self.__get_beatmap_hash_list()
-        self.ranked_hash_list = self.__get_ranked_hash_list()
+        if(self.ranked_playlist_path):
+            self.ranked_hash_list = self.__get_ranked_hash_list()
+        else:
+            self.default_ranked_playlist = default_ranked_playlist
+            self.ranked_hash_list = self.__collect_ranked_hash_list()
         self.filterd_hash_list = self.__filter_beatmap_from_ranked_list()
 
     def __filter_beatmap_from_ranked_list(self):
@@ -64,13 +70,40 @@ class playlistEditor():
                 hash_list.append(metadata.lower())
         return hash_list
 
+    #https://note.com/denpadokei/n/nf23eb568d4f1
+    def __calc_metadata_hash(self, path):
+        info_path = os.path.join(path, 'info.dat')
+        info_json = self.helper.get_json_data(info_path)
+        difficulty_files = [info_path]
+        difficultyBeatmaps_list = info_json['_difficultyBeatmapSets'][0]['_difficultyBeatmaps']
+        for difficultyBeatmaps in difficultyBeatmaps_list:
+            difficulty_files.append(os.path.join(path, difficultyBeatmaps['_beatmapFilename']))
+        Message = b''
+        for difficulty_file in difficulty_files:
+            Message += self.helper.get_file_data(difficulty_file)
+        hash = hashlib.sha1(Message).hexdigest().lower()
+        return hash
+
     def __get_beatmap_hash(self, path):
         metadata_path = os.path.join(path, 'metadata.dat')
         if not(os.path.isfile(metadata_path)):
-            return
+            hash = self.__calc_metadata_hash(path)
+            return hash
         metadata_json = self.helper.get_json_data(metadata_path)
         hash = metadata_json['hash']
         return hash
+
+    def __collect_ranked_hash_list(self):
+        hash_list = []
+        playlist_files = []
+        for playlist_file in os.listdir(self.default_ranked_playlist):
+            if os.path.isfile(os.path.join(self.default_ranked_playlist, playlist_file)): # file checker
+                playlist_files.append(os.path.join(self.default_ranked_playlist, playlist_file))
+        for playlist_file in playlist_files:
+            ranked_playlist_json = self.helper.get_json_data(playlist_file)
+            for obj in ranked_playlist_json['songs']:
+                hash_list.append(obj['hash'].lower()) # set object
+        return hash_list
 
     def create_playlist(self):
         self.default_playlist_json = self.helper.get_json_data(self.default_playlist)
