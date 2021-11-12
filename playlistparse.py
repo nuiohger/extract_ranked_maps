@@ -85,10 +85,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-'''
-
--> beatmapのリストを作成
-
-'''
