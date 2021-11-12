@@ -81,7 +81,6 @@ class playlistEditor():
             for difficultyBeatmaps in difficultyBeatmaps_list:
                 difficulty_files.append(os.path.join(path, difficultyBeatmaps['_beatmapFilename']))
         Message = b''
-        print(difficulty_files)
         for difficulty_file in difficulty_files:
             Message += self.helper.get_file_data(difficulty_file)
         hash = hashlib.sha1(Message).hexdigest().lower()
