@@ -75,10 +75,13 @@ class playlistEditor():
         info_path = os.path.join(path, 'info.dat')
         info_json = self.helper.get_json_data(info_path)
         difficulty_files = [info_path]
-        difficultyBeatmaps_list = info_json['_difficultyBeatmapSets'][0]['_difficultyBeatmaps']
-        for difficultyBeatmaps in difficultyBeatmaps_list:
-            difficulty_files.append(os.path.join(path, difficultyBeatmaps['_beatmapFilename']))
+        difficultyBeatmapSets_list = info_json['_difficultyBeatmapSets']
+        for difficultyBeatmapSets in difficultyBeatmapSets_list:
+            difficultyBeatmaps_list = difficultyBeatmapSets['_difficultyBeatmaps']
+            for difficultyBeatmaps in difficultyBeatmaps_list:
+                difficulty_files.append(os.path.join(path, difficultyBeatmaps['_beatmapFilename']))
         Message = b''
+        print(difficulty_files)
         for difficulty_file in difficulty_files:
             Message += self.helper.get_file_data(difficulty_file)
         hash = hashlib.sha1(Message).hexdigest().lower()
