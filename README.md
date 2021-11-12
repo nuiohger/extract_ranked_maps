@@ -4,5 +4,5 @@
 # 使い方
 
 ```
-$ python <input_beatsaber_map> <input_current_ranked_playlist> <output_extracted_playlist>
+$ python playlistparse.py <input_beatsaber_map> <input_current_ranked_playlist> <output_extracted_playlist>
 ```
