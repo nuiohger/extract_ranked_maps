@@ -22,3 +22,4 @@ optional arguments:
 rankedのプレイリストは　ここから取ってくる https://www.beatsavior.io/
 か
 ここから ranked_allを取ってくる　https://github.com/aplulu/bs-ranked-playlist/releases
+またはここから　https://scoresaber.balibalo.xyz/playlist-maker
